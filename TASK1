@@ -1,0 +1,171 @@
+/*NUMBER GUESS GAME*/
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
+
+public class NumberGameWithPanel extends JFrame {
+    private int randomNumber;
+    private int attempts;
+    private int maxAttempts = 7;
+    private int score = 0;
+    private int round = 1;
+    private int totalRounds;
+
+    private JLabel roundLabel, messageLabel, attemptsLabel, scoreLabel, numberLabel;
+    private JTextField inputField;
+    private JButton submitButton, restartButton;
+
+    public NumberGameWithPanel() {
+        // Setting up the frame
+        setTitle("Number Guessing Game");
+        setSize(400, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridLayout(7, 1));
+
+        // UI components
+        roundLabel = new JLabel("Round: 1", JLabel.CENTER);
+        messageLabel = new JLabel("Guess a number between 1 and 100", JLabel.CENTER);
+        attemptsLabel = new JLabel("Attempts Left: " + maxAttempts, JLabel.CENTER);
+        scoreLabel = new JLabel("Score: 0", JLabel.CENTER);
+        numberLabel = new JLabel("Random Number: Hidden", JLabel.CENTER);
+
+        inputField = new JTextField();
+        submitButton = new JButton("Submit Guess");
+        restartButton = new JButton("Restart Game");
+        restartButton.setEnabled(false); // Initially disabled
+
+        // Adding components to the frame
+        add(roundLabel);
+        add(messageLabel);
+        add(attemptsLabel);
+        add(inputField);
+        add(submitButton);
+        add(scoreLabel);
+        add(numberLabel);
+
+        // Prompt the user to enter the number of rounds
+        try {
+            String input = JOptionPane.showInputDialog(this, "Enter the number of rounds:");
+            if (input == null) { // User pressed "Cancel"
+                dispose(); // Close the panel
+                return;
+            }
+            totalRounds = Integer.parseInt(input);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Closing the game.", "Error", JOptionPane.ERROR_MESSAGE);
+            dispose(); // Close the panel
+            return;
+        }
+
+        // Generate the first random number
+        generateRandomNumber();
+
+        // Submit button action listener
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                processGuess();
+            }
+        });
+
+        // Restart button action listener
+        restartButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resetGame();
+            }
+        });
+
+        // Finalize the frame
+        setVisible(true);
+    }
+
+    private void generateRandomNumber() {
+        Random random = new Random();
+        randomNumber = random.nextInt(100) + 1; // Random number between 1 and 100
+        attempts = 0;
+        numberLabel.setText("Random Number: Hidden"); // Reset display of random number
+    }
+
+    private void processGuess() {
+        try {
+            int guess = Integer.parseInt(inputField.getText());
+            inputField.setText("");
+            attempts++;
+            if (guess == randomNumber) {
+                messageLabel.setText("🎉 Correct! Starting next round.");
+                score += maxAttempts - attempts + 1; // Higher score for fewer attempts
+                updateScoreAndRound();
+            } else if (guess < randomNumber) {
+                messageLabel.setText("Too low! Try again.");
+            } else {
+                messageLabel.setText("Too high! Try again.");
+            }
+
+            attemptsLabel.setText("Attempts Left: " + (maxAttempts - attempts));
+
+            if (attempts == maxAttempts) {
+                messageLabel.setText("😢 Out of attempts! The correct number was: " + randomNumber);
+                numberLabel.setText("Random Number: " + randomNumber);
+                updateScoreAndRound();
+            }
+        } catch (NumberFormatException ex) {
+            messageLabel.setText("Please enter a valid number!");
+        }
+    }
+
+    private void updateScoreAndRound() {
+        round++;
+        scoreLabel.setText("Score: " + score);
+        if (round <= totalRounds) {
+            roundLabel.setText("Round: " + round);
+            generateRandomNumber();
+        } else {
+            endGame();
+        }
+    }
+
+    private void endGame() {
+        messageLabel.setText("Game Over! Final Score: " + score);
+        numberLabel.setText("Random Number: " + randomNumber);
+        inputField.setEnabled(false);
+        submitButton.setEnabled(false);
+        restartButton.setEnabled(true);
+        add(restartButton);
+        validate();
+    }
+
+    private void resetGame() {
+        round = 1;
+        score = 0;
+        inputField.setEnabled(true);
+        submitButton.setEnabled(true);
+        restartButton.setEnabled(false);
+
+        roundLabel.setText("Round: 1");
+        scoreLabel.setText("Score: 0");
+        messageLabel.setText("Guess a number between 1 and 100");
+        attemptsLabel.setText("Attempts Left: " + maxAttempts);
+
+        try {
+            String input = JOptionPane.showInputDialog(this, "Enter the number of rounds:");
+            if (input == null) { // User pressed "Cancel"
+                dispose(); // Close the panel
+                return;
+            }
+            totalRounds = Integer.parseInt(input);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Closing the game.", "Error", JOptionPane.ERROR_MESSAGE);
+            dispose(); // Close the panel
+        }
+
+        generateRandomNumber();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new NumberGameWithPanel());
+    }
+}

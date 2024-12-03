@@ -1,0 +1,126 @@
+/*ATM INTERFACE*/
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class ATMInterface {
+    private double balance = 0.0; // User's account balance
+    private JLabel balanceLabel, messageLabel;
+    private JTextField amountField;
+
+    public ATMInterface() {
+        // Create the frame
+        JFrame frame = new JFrame("ATM Interface");
+        frame.setSize(400, 300);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+
+        // Create and set up the panel
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(5, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Create components
+        JLabel amountLabel = new JLabel("Enter Amount:");
+        amountField = new JTextField();
+
+        JButton depositButton = new JButton("Deposit");
+        JButton withdrawButton = new JButton("Withdraw");
+        JButton checkBalanceButton = new JButton("Check Balance");
+
+        balanceLabel = new JLabel("Balance: $0.00");
+        balanceLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        balanceLabel.setFont(new Font("Arial", Font.BOLD, 14));
+
+        messageLabel = new JLabel("");
+        messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        messageLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+        messageLabel.setForeground(Color.RED);
+
+        // Add action listeners for buttons
+        depositButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleDeposit();
+            }
+        });
+
+        withdrawButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleWithdrawal();
+            }
+        });
+
+        checkBalanceButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleCheckBalance();
+            }
+        });
+
+        // Add components to the panel
+        panel.add(amountLabel);
+        panel.add(amountField);
+        panel.add(depositButton);
+        panel.add(withdrawButton);
+        panel.add(checkBalanceButton);
+        panel.add(balanceLabel);
+        panel.add(new JLabel()); // Empty placeholder
+        panel.add(messageLabel);
+
+        // Add panel to the frame
+        frame.add(panel, BorderLayout.CENTER);
+
+        // Display the frame
+        frame.setVisible(true);
+    }
+
+    private void handleDeposit() {
+        try {
+            double amount = Double.parseDouble(amountField.getText());
+            if (amount <= 0) {
+                messageLabel.setText("Enter a valid amount to deposit.");
+            } else {
+                balance += amount;
+                updateBalanceLabel();
+                messageLabel.setText("Deposit successful!");
+            }
+        } catch (NumberFormatException ex) {
+            messageLabel.setText("Invalid input. Please enter a number.");
+        }
+        amountField.setText("");
+    }
+
+    private void handleWithdrawal() {
+        try {
+            double amount = Double.parseDouble(amountField.getText());
+            if (amount <= 0) {
+                messageLabel.setText("Enter a valid amount to withdraw.");
+            } else if (amount > balance) {
+                messageLabel.setText("Insufficient balance.");
+            } else {
+                balance -= amount;
+                updateBalanceLabel();
+                messageLabel.setText("Withdrawal successful!");
+            }
+        } catch (NumberFormatException ex) {
+            messageLabel.setText("Invalid input. Please enter a number.");
+        }
+        amountField.setText("");
+    }
+
+    private void handleCheckBalance() {
+        messageLabel.setText("Balance checked.");
+    }
+
+    private void updateBalanceLabel() {
+        balanceLabel.setText(String.format("Balance: $%.2f", balance));
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new ATMInterface());
+    }
+}

@@ -1,0 +1,108 @@
+/*STUDENT GRADE CALCULATOR*/
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class StudentGradeCalculator extends JFrame {
+    private JTextField[] marksFields;
+    private JLabel totalMarksLabel, avgPercentageLabel, gradeLabel;
+
+    public StudentGradeCalculator() {
+        // Set up the frame
+        setTitle("Student Grade Calculator");
+        setSize(400, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Input Panel
+        JPanel inputPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Add input fields for 5 subjects
+        JLabel[] subjectLabels = new JLabel[5];
+        marksFields = new JTextField[5];
+        for (int i = 0; i < 5; i++) {
+            subjectLabels[i] = new JLabel("Subject " + (i + 1) + " Marks:");
+            marksFields[i] = new JTextField();
+            inputPanel.add(subjectLabels[i]);
+            inputPanel.add(marksFields[i]);
+        }
+
+        // Add Calculate button
+        JButton calculateButton = new JButton("Calculate");
+        inputPanel.add(calculateButton);
+
+        // Add Result Panel
+        JPanel resultPanel = new JPanel(new GridLayout(3, 1, 10, 10));
+        resultPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        totalMarksLabel = new JLabel("Total Marks: ", JLabel.CENTER);
+        avgPercentageLabel = new JLabel("Average Percentage: ", JLabel.CENTER);
+        gradeLabel = new JLabel("Grade: ", JLabel.CENTER);
+
+        resultPanel.add(totalMarksLabel);
+        resultPanel.add(avgPercentageLabel);
+        resultPanel.add(gradeLabel);
+
+        // Add panels to frame
+        add(inputPanel, BorderLayout.CENTER);
+        add(resultPanel, BorderLayout.SOUTH);
+
+        // Action Listener for the Calculate Button
+        calculateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                calculateResults();
+            }
+        });
+
+        // Make frame visible
+        setVisible(true);
+    }
+
+    private void calculateResults() {
+        try {
+            // Fetch marks and calculate total
+            int totalMarks = 0;
+            for (JTextField marksField : marksFields) {
+                int marks = Integer.parseInt(marksField.getText());
+                if (marks < 0 || marks > 100) {
+                    JOptionPane.showMessageDialog(this, "Marks should be between 0 and 100.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                totalMarks += marks;
+            }
+
+            // Calculate average percentage
+            double averagePercentage = totalMarks / 5.0;
+
+            // Determine grade
+            String grade;
+            if (averagePercentage >= 90) {
+                grade = "A";
+            } else if (averagePercentage >= 80) {
+                grade = "B";
+            } else if (averagePercentage >= 70) {
+                grade = "C";
+            } else if (averagePercentage >= 60) {
+                grade = "D";
+            } else {
+                grade = "F";
+            }
+
+            // Display results
+            totalMarksLabel.setText("Total Marks: " + totalMarks);
+            avgPercentageLabel.setText("Average Percentage: " + String.format("%.2f", averagePercentage) + "%");
+            gradeLabel.setText("Grade: " + grade);
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Please enter valid numeric marks for all subjects.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new StudentGradeCalculator());
+    }
+}
